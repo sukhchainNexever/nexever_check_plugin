@@ -30,5 +30,5 @@ dependencies:
     sdk: flutter
   nexever_check_plugin:
     git:
-      url: https://github.com/sukhchainNexever/flutter_debugging_plugin.git
+      url: https://github.com/sukhchainNexever/nexever_check_plugin.git
 
