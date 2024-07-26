@@ -2,12 +2,11 @@ import Flutter
 import UIKit
 import Network
 
-public class FlutterDebuggingPlugin: NSObject, FlutterPlugin {
-    private let CHANNEL = "com.nexever/debugging"
+public class NexeverCheckPlugin: NSObject, FlutterPlugin {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: CHANNEL, binaryMessenger: registrar.messenger())
-        let instance = FlutterDebuggingPlugin()
+        let channel = FlutterMethodChannel(name: "com.nexever/debugging", binaryMessenger: registrar.messenger())
+        let instance = NexeverCheckPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
@@ -16,7 +15,7 @@ public class FlutterDebuggingPlugin: NSObject, FlutterPlugin {
         case "isUsbDebuggingEnabled":
             result(isUsbDebuggingEnabled())
         case "isVpnConnected":
-            result(isVpnConnected())
+            result(isVpnActive())
         case "isDeviceRooted":
             result(isDeviceRooted())
         default:
@@ -45,7 +44,25 @@ public class FlutterDebuggingPlugin: NSObject, FlutterPlugin {
 
         return isConnected
     }
+private func isVpnActive() -> Bool {
+        let vpnProtocolsKeysIdentifiers = [
+            "tap", "tun", "ppp", "ipsec", "utun", "pptp",
+        ]
 
+        guard let cfDict = CFNetworkCopySystemProxySettings() else { return false }
+        let nsDict = cfDict.takeRetainedValue() as NSDictionary
+        guard let keys = nsDict["__SCOPED__"] as? NSDictionary,
+              let allKeys = keys.allKeys as? [String] else { return false }
+
+        // Checking for tunneling protocols in the keys
+        for key in allKeys {
+            for protocolId in vpnProtocolsKeysIdentifiers
+            where key.starts(with: protocolId) {
+                return true
+            }
+        }
+        return false
+    }
     private func isDeviceRooted() -> Bool {
         let fileManager = FileManager.default
         let pathsToCheck = [

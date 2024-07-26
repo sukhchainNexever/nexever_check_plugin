@@ -61,6 +61,15 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
+          actions: [
+            InkWell(
+              onTap: () => initPlatformState(),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(Icons.sync),
+              ),
+            )
+          ],
         ),
         body: Center(
           child: Column(
